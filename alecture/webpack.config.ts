@@ -39,11 +39,13 @@ const config: Configuration = {
             [
               '@babel/preset-env',
               {
-                targets: { browsers: [
-                  "last 1 chrome version",
-                  "last 1 firefox version",
-                  "last 1 safari version"
-                ] },
+                targets: {
+                  browsers: [
+                    "last 1 chrome version",
+                    "last 1 firefox version",
+                    "last 1 safari version"
+                  ]
+                },
                 debug: isDevelopment,
               },
             ],
@@ -86,6 +88,12 @@ const config: Configuration = {
     port: 3090,
     devMiddleware: { publicPath: '/dist/' },
     static: { directory: path.resolve(__dirname) },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3095',
+        changeOrigin: true,
+      },
+    },
   },
 };
 

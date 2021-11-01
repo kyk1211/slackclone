@@ -7,7 +7,7 @@ import { Redirect, Link } from 'react-router-dom';
 import useSWR from 'swr';
 
 const LogIn = () => {
-  const { data, error } = useSWR('http://localhost:3095/api/users', fetcher);
+  const { data, error, isValidating, mutate } = useSWR('/api/users', fetcher);
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -15,17 +15,27 @@ const LogIn = () => {
   const onSubmit = useCallback((e) => {
     e.preventDefault();
     setLogInError(false);
-    axios.post('http://localhost:3095/api/users/login',
+    axios.post('/api/users/login',
       { email, password },
-      { withCredentials: true })
-      .then(() => { })
+      {
+        withCredentials: true
+      })
+      .then((res) => { mutate(res.data, false) })
       .catch((err) => {
         console.log(err.response);
         setLogInError(err.response?.data?.statusCode === 401);
       })
       .finally(() => { })
-
   }, [email, password]);
+
+  if (data === undefined) {
+    return <div>로딩중...</div>;
+  }
+
+  if (data) {
+    return <Redirect to='/workspace/channel' />
+  }
+
   return (
     <div id="container">
       <Header>Sleact</Header>

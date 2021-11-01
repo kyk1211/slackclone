@@ -1,12 +1,13 @@
 import useInput from '@hooks/useInput';
 import { Button, Error, Form, Header, Input, Label, LinkContainer } from '@pages/SignUp/styles';
-// import fetcher from '@utils/fetcher';
+import fetcher from '@utils/fetcher';
 import axios from 'axios';
 import React, { useCallback, useState } from 'react';
 import { Redirect, Link } from 'react-router-dom';
-// import useSWR from 'swr';
+import useSWR from 'swr';
 
 const LogIn = () => {
+  const { data, error } = useSWR('http://localhost:3095/api/users', fetcher);
   const [logInError, setLogInError] = useState(false);
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
@@ -14,13 +15,10 @@ const LogIn = () => {
   const onSubmit = useCallback((e) => {
     e.preventDefault();
     setLogInError(false);
-    axios.post('http://localhost:3095/api/users/login', {
-      email,
-      password
-    })
-      .then(() => {
-
-      })
+    axios.post('http://localhost:3095/api/users/login',
+      { email, password },
+      { withCredentials: true })
+      .then(() => { })
       .catch((err) => {
         console.log(err.response);
         setLogInError(err.response?.data?.statusCode === 401);

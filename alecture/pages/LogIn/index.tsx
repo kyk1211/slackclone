@@ -20,13 +20,14 @@ const LogIn = () => {
       {
         withCredentials: true
       })
-      .then((res) => { mutate(res.data, false) })
+      .then(() => {
+        mutate()
+      })
       .catch((err) => {
-        console.log(err.response);
         setLogInError(err.response?.data?.statusCode === 401);
       })
       .finally(() => { })
-  }, [email, password]);
+  }, [email, password, mutate]);
 
   if (data === undefined) {
     return <div>로딩중...</div>;
@@ -38,7 +39,7 @@ const LogIn = () => {
 
   return (
     <div id="container">
-      <Header>Sleact</Header>
+      <Header>K-sleact</Header>
       <Form onSubmit={onSubmit}>
         <Label id="email-label">
           <span>이메일 주소</span>

@@ -7,7 +7,7 @@ import { Link, Redirect } from 'react-router-dom';
 import useSWR from 'swr';
 
 const SignUp = () => {
-  const { data, error, mutate } = useSWR('/api/users', fetcher);
+  const { data } = useSWR('/api/users', fetcher);
   const [email, onChangeEmail] = useInput('');
   const [nickname, onChangeNickname] = useInput('');
   const [password, , setPassword] = useInput('');
@@ -60,7 +60,7 @@ const SignUp = () => {
 
   return (
     <div id="container">
-      <Header>Sleact</Header>
+      <Header>K-slack</Header>
       <Form onSubmit={onSubmit}>
         <Label id="email-label">
           <span>이메일 주소</span>

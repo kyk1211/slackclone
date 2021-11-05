@@ -1,9 +1,9 @@
 import fetcher from '@utils/fetcher';
 import axios from 'axios';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, VFC } from 'react';
 import { Redirect, Route, Switch } from 'react-router';
 import useSWR from 'swr';
-import { AddButton, Channels, Chats, Header, LogOutButton, MenuScroll, ProfileImg, ProfileModal, RightMenu, WorkspaceButton, WorkspaceName, Workspaces, WorkspaceWrapper } from './styles';
+import { AddButton, Channels, Chats, Header, LogOutButton, MenuScroll, ProfileImg, ProfileModal, RightMenu, WorkspaceButton, WorkspaceModal, WorkspaceName, Workspaces, WorkspaceWrapper } from './styles';
 import gravartar from 'gravatar';
 import loadable from '@loadable/component';
 import Menu from '@components/Menu';
@@ -13,16 +13,19 @@ import { Button, Input, Label } from '@pages/SignUp/styles';
 import Modal from '@components/Modal';
 import useInput from '@hooks/useInput';
 import { toast } from 'react-toastify';
+import CreateChannelModal from '@components/CreateChannelModal';
 
 const Channel = loadable(() => import('@pages/Channel'));
 const DirectMessage = loadable(() => import('@pages/DirectMessage'));
 
-const Workspace = () => {
+const Workspace: VFC = () => {
   const { data: userData, error, mutate } = useSWR<IUser | false>('/api/users', fetcher, {
     dedupingInterval: 20000, // 2초
   });
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showCreateWorkspaceModal, setShowCreateWorkspaceModal] = useState(false);
+  const [showWorkspaceModal, setShowWorkspaceModal] = useState(false);
+  const [showCreateChannelModal, setShowCreateChannelModal] = useState(false);
   const [newWorkspace, onChangeNewWorkspace, setNewWorkspace] = useInput('');
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
@@ -69,6 +72,15 @@ const Workspace = () => {
 
   const onCloseModal = useCallback(() => {
     setShowCreateWorkspaceModal(false);
+    setShowCreateChannelModal(false);
+  }, [])
+
+  const toggleWorkspaceModal = useCallback(() => {
+    setShowWorkspaceModal(prev => !prev)
+  }, [])
+
+  const onClickAddChannel = useCallback(() => {
+    setShowCreateChannelModal(prev => !prev)
   }, [])
 
   if (!userData) {
@@ -107,8 +119,16 @@ const Workspace = () => {
           <AddButton onClick={onClickCreateWorkspace}>+</AddButton>
         </Workspaces>
         <Channels>
-          <WorkspaceName>k-slack</WorkspaceName>
-          <MenuScroll>menu scroll</MenuScroll>
+          <WorkspaceName onClick={toggleWorkspaceModal}>k slack</WorkspaceName>
+          <MenuScroll>
+            <Menu show={showWorkspaceModal} onCloseModal={toggleWorkspaceModal} style={{ top: 95, left: 80 }}>
+              <WorkspaceModal>
+                <h2>k slack</h2>
+                <button onClick={onClickAddChannel}>채널 만들기</button>
+                <button onClick={onLogout}>로그아웃</button>
+              </WorkspaceModal>
+            </Menu>
+          </MenuScroll>
         </Channels>
         <Chats>
           <Switch>
@@ -117,8 +137,6 @@ const Workspace = () => {
           </Switch>
         </Chats>
       </WorkspaceWrapper>
-      {/* input이 있으면 component를 따로 빼는게 좋다. => 리랜더링 줄임*/}
-      {/* modal input 분리해보기 */}
       <Modal show={showCreateWorkspaceModal} onCloseModal={onCloseModal}>
         <form onSubmit={onCreateWorkspace}>
           <Label id='workspace-label'>
@@ -132,6 +150,7 @@ const Workspace = () => {
           <Button type='submit'>생성하기</Button>
         </form>
       </Modal>
+      <CreateChannelModal show={showCreateChannelModal} onCloseModal={onCloseModal} />
     </div>
   );
 };

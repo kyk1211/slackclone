@@ -42,13 +42,13 @@ const CreateChannelModal: VFC<Props> = ({ show, onCloseModal, setShowCreateChann
       console.dir(err);
       toast.error(err.response?.data, { position: 'bottom-center' })
     })
-  }, [newChannel, revalidateChannel, setNewChannel, setShowCreateChannelModal]);
+  }, [newChannel, revalidateChannel, setNewChannel, setShowCreateChannelModal, workspace]);
 
   return (
     <Modal show={show} onCloseModal={onCloseModal}>
       <form onSubmit={onCreateChannel}>
         <Label id='channel-label'>
-          <span>채널</span>
+          <span>채널 이름</span>
           <Input id="channel" value={newChannel} onChange={onChangeNewChannel} />
         </Label>
         <Button type='submit'>생성하기</Button>

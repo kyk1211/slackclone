@@ -90,7 +90,7 @@ const config: Configuration = {
     static: { directory: path.resolve(__dirname) },
     // cors해결을 위한 옵션 backend에서 설정하면 필요없음
     proxy: {
-      '/api': {
+      '/api/': {
         target: 'http://localhost:3095',
         changeOrigin: true,
       },

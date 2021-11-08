@@ -49,7 +49,7 @@ const Workspace: VFC = () => {
   const [newUrl, onChangeNewUrl, setNewUrl] = useInput('');
 
   const { workspace } = useParams<{ workspace?: string }>();
-  const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher. {
+  const { data: userData, mutate: revalidateUser } = useSWR<IUser | false>('/api/users', fetcher, {
     dedupingInterval: 2000,
   });
 
@@ -58,10 +58,22 @@ const Workspace: VFC = () => {
   const [socket, disconnect] = useSocket(workspace);
 
   useEffect(() => {
-    socket.on('message');
-    disconnect();
-  }, [])
+    if (channelData && userData && socket) {
+      console.log(socket);
+      socket.emit('login', {
+        id: userData.id,
+        channels: channelData.map((v) => {
+          v.id;
+        }),
+      });
+    }
+  }, [workspace, channelData, userData]);
 
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [workspace, disconnect]);
 
   const onLogout = useCallback(() => {
     axios

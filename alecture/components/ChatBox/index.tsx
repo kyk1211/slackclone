@@ -24,7 +24,7 @@ const ChatBox: VFC<Props> = ({ chat, onChangeChat, onSubmitForm, placeholder }) 
         onSubmitForm(e)
       }
     }
-  }, [])
+  }, [onSubmitForm])
 
   return (
     <ChatArea>

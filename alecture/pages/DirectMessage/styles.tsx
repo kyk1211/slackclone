@@ -4,7 +4,8 @@ export const Container = styled.div`
   display: flex;
   flex-wrap: wrap;
   height: calc(100vh - 38px);
-  flex-flow: columns;
+  flex-flow: column;
+  position: relative;
 `;
 
 export const Header = styled.header`
@@ -16,6 +17,7 @@ export const Header = styled.header`
   padding: 20px 16px 20px 20px;
   font-weight: bold;
   align-items: center;
+
   & img {
     margin-right: 5px;
   }

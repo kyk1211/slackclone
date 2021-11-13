@@ -1,7 +1,7 @@
 import Chat from '@components/Chat';
 import { IDM } from '@typings/db';
 import React, { useCallback, useRef, VFC } from 'react';
-import { ChatZone, Section } from './styles';
+import { ChatZone } from './styles';
 import { Scrollbars } from 'react-custom-scrollbars';
 
 interface Props {

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "regexify-string": "^1.0.16",
     "swr": "^1.0.1"
   }
 }

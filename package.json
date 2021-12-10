@@ -1,6 +1,8 @@
 {
   "dependencies": {
+    "@types/webpack-bundle-analyzer": "^4.4.1",
     "regexify-string": "^1.0.16",
-    "swr": "^1.0.1"
+    "swr": "^1.0.1",
+    "webpack-bundle-analyzer": "^4.5.0"
   }
 }

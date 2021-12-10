@@ -1,20 +1,20 @@
 import path from 'path';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import webpack, { Configuration as WebpackConfiguration } from "webpack";
-import { Configuration as WebpackDevServerConfiguration } from "webpack-dev-server";
+import webpack, { Configuration as WebpackConfiguration } from 'webpack';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
+import { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
 
 interface Configuration extends WebpackConfiguration {
   devServer?: WebpackDevServerConfiguration;
 }
-
-import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const config: Configuration = {
   name: 'sleact',
   mode: isDevelopment ? 'development' : 'production',
-  devtool: isDevelopment ? 'hidden-source-map' : 'inline-source-map',
+  devtool: !isDevelopment ? 'hidden-source-map' : 'inline-source-map',
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
@@ -40,11 +40,7 @@ const config: Configuration = {
               '@babel/preset-env',
               {
                 targets: {
-                  browsers: [
-                    "last 1 chrome version",
-                    "last 1 firefox version",
-                    "last 1 safari version"
-                  ]
+                  browsers: ['last 1 chrome version', 'last 1 firefox version', 'last 1 safari version'],
                 },
                 debug: isDevelopment,
               },
@@ -73,7 +69,7 @@ const config: Configuration = {
     new ForkTsCheckerWebpackPlugin({
       async: false,
       eslint: {
-        files: "./src/**/*",
+        files: './src/**/*',
       },
     }),
     new webpack.EnvironmentPlugin({ NODE_ENV: isDevelopment ? 'development' : 'production' }),
@@ -100,13 +96,18 @@ const config: Configuration = {
 
 if (isDevelopment && config.plugins) {
   config.plugins.push(new webpack.HotModuleReplacementPlugin());
-  config.plugins.push(new ReactRefreshWebpackPlugin({
-    overlay: {
-      useURLPolyfill: true
-    }
-  }));
+  config.plugins.push(
+    new ReactRefreshWebpackPlugin({
+      overlay: {
+        useURLPolyfill: true,
+      },
+    }),
+  );
+  config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'server', openAnalyzer: false }));
 }
 if (!isDevelopment && config.plugins) {
+  config.plugins.push(new webpack.LoaderOptionsPlugin({ minimize: true }));
+  config.plugins.push(new BundleAnalyzerPlugin({ analyzerMode: 'static' }));
 }
 
 export default config;

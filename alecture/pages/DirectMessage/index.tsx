@@ -54,6 +54,7 @@ const DirectMessage = () => {
           });
           return prevChatData;
         }, false).then(() => {
+          localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
           setChat('');
           scrollbarRef.current?.scrollToBottom();
         });
@@ -95,6 +96,7 @@ const DirectMessage = () => {
       socket?.off('dm', onMessage);
     };
   }, [socket, onMessage]);
+
   // 로딩 시 스크롤바 제일 아래로 이동
   useEffect(() => {
     if (chatData?.length === 1) {
@@ -104,31 +106,39 @@ const DirectMessage = () => {
     }
   }, [chatData]);
 
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
+  }, [workspace, id]);
+
   const onDrop = useCallback(
     (e) => {
       e.preventDefault();
       console.log(e);
       const formData = new FormData();
       if (e.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
         for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
           if (e.dataTransfer.items[i].kind === 'file') {
-            const file = e.daTransfer.items[i].getAsFile();
-            console.log(`... file[${i}].name = ${file.name}`);
+            const file = e.dataTransfer.items[i].getAsFile();
+            console.log('... file[' + i + '].name = ' + file.name);
             formData.append('image', file);
           }
         }
       } else {
+        // Use DataTransfer interface to access the file(s)
         for (let i = 0; i < e.dataTransfer.files.length; i++) {
-          console.log(`... file[${i}].name = ${e.dataTansfer.files[i].name}`);
-          formData.append('image', e.dataTansfer.files[i].name);
+          console.log('... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
+          formData.append('image', e.dataTransfer.files[i]);
         }
       }
       axios.post(`/api/workspaces/${workspace}/dms/${id}/images`, formData).then(() => {
         setDragOver(false);
+        localStorage.setItem(`${workspace}-${id}`, new Date().getTime().toString());
         mutateChat();
       });
     },
-    [mutateChat, workspace, id],
+    [workspace, id, mutateChat],
   );
 
   const onDragOver = useCallback((e) => {
@@ -141,7 +151,7 @@ const DirectMessage = () => {
     return null;
   }
 
-  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
+  const chatSections = makeSection(chatData ? ([] as IDM[]).concat(...chatData).reverse() : []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>

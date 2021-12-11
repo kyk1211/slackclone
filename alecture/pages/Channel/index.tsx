@@ -4,7 +4,7 @@ import useInput from '@hooks/useInput';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Container, DragOver, Header } from './styles';
 import useSWRInfinite from 'swr/infinite';
-import { useParams } from 'react-router';
+import { Redirect, useParams } from 'react-router';
 import { IChannel, IChat, IUser } from '@typings/db';
 import useSWR from 'swr';
 import fetcher from '@utils/fetcher';
@@ -13,6 +13,7 @@ import Scrollbars from 'react-custom-scrollbars';
 import axios from 'axios';
 import InviteChannelModal from '@components/InviteChannelModal';
 import makeSection from '@utils/makeSection';
+import { ToastContainer } from 'react-toastify';
 
 const Channel = () => {
   const { workspace, channel } = useParams<{ workspace: string; channel: string }>();
@@ -113,6 +114,10 @@ const Channel = () => {
     }
   }, [chatData]);
 
+  useEffect(() => {
+    localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
+  }, [workspace, channel]);
+
   const onClickInviteChannel = useCallback(() => {
     setShowInviteChannelModal(true);
   }, []);
@@ -127,25 +132,30 @@ const Channel = () => {
       console.log(e);
       const formData = new FormData();
       if (e.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
         for (let i = 0; i < e.dataTransfer.items.length; i++) {
+          // If dropped items aren't files, reject them
+          console.log(e.dataTransfer.items[i]);
           if (e.dataTransfer.items[i].kind === 'file') {
-            const file = e.daTransfer.items[i].getAsFile();
-            console.log(`... file[${i}].name = ${file.name}`);
+            const file = e.dataTransfer.items[i].getAsFile();
+            console.log(e, '.... file[' + i + '].name = ' + file.name);
             formData.append('image', file);
           }
         }
       } else {
+        // Use DataTransfer interface to access the file(s)
         for (let i = 0; i < e.dataTransfer.files.length; i++) {
-          console.log(`... file[${i}].name = ${e.dataTansfer.files[i].name}`);
-          formData.append('image', e.dataTansfer.files[i].name);
+          console.log(e, '... file[' + i + '].name = ' + e.dataTransfer.files[i].name);
+          formData.append('image', e.dataTransfer.files[i]);
         }
       }
-      axios.post(`/api/workspaces/${workspace}/dms/${chat}/images`, formData).then(() => {
+      axios.post(`/api/workspaces/${workspace}/channels/${channel}/images`, formData).then(() => {
         setDragOver(false);
+        localStorage.setItem(`${workspace}-${channel}`, new Date().getTime().toString());
         mutateChat();
       });
     },
-    [mutateChat, workspace, chat],
+    [workspace, channel],
   );
 
   const onDragOver = useCallback((e) => {
@@ -154,11 +164,11 @@ const Channel = () => {
     setDragOver(true);
   }, []);
 
-  if (!myData || !myData) {
-    return null;
+  if (channelData && !channelData) {
+    return <Redirect to={`/workspace/${workspace}/channel/일반`} />;
   }
 
-  const chatSections = makeSection(chatData ? chatData.flat().reverse() : []);
+  const chatSections = makeSection(chatData ? ([] as IChat[]).concat(...chatData).reverse() : []);
 
   return (
     <Container onDrop={onDrop} onDragOver={onDragOver}>
@@ -184,6 +194,7 @@ const Channel = () => {
         onCloseModal={onCloseModal}
         setShowInviteChannelModal={setShowInviteChannelModal}
       />
+      <ToastContainer position="bottom-center" />
       {dragOver && <DragOver>업로드!</DragOver>}
     </Container>
   );

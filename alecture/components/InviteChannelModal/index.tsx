@@ -22,7 +22,7 @@ const InviteChannelModal: FC<Props> = ({ show, onCloseModal, setShowInviteChanne
     userData ? `/api/workspaces/${workspace}/channels/${channel}/members` : null,
     fetcher,
   );
-  console.log(channel)
+
   const onInviteMember = useCallback(
     (e) => {
       e.preventDefault();
